@@ -1,7 +1,17 @@
 # genAI_experiment
 ---
+![Chat Example](images/)
+## Preparation/Requirements
+- Python 3.11.12 (or similar)
+- 
 
-## Beginning
+### Personal experience - just in case:
+- torch==2.6.0 (torchvision==0.21.0+cu124)
+- numpy==2.2.5 (note: if there is numpy version error, set numpy version to a lower version before upgrading version to latest after installing other packages - transformers, bitsandbytes, accelerate)
+- jedi>=0.16 (I used 0.16)
+- accelerate==1.6.0
+- transformers==4.51.3
+---
 ## LLM download
 
 
@@ -11,3 +21,5 @@ I loaded up a new Colab page and set runtime type to T4 GPU. Then I downloaded G
 falcon - too large, failed to download into colab (used up RAM) - used hugging face snapshot download method and quantisation method to load? (or was this for llama v3?)
 llama v3 8b - used hugging face token, downloaded and worked - trained
 gpt2? - download worked and was able to chat with it but too outdated and mostly untrained - kept repeating phrases until limit for each reply reached
+> why quantisation? (for package bitsandbytes)
+
