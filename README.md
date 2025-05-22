@@ -1,6 +1,6 @@
 # genAI_experiment
 ---
-![Chat Example](images/)
+![Chat Example](images/chatINTRO.jpeg)
 ## Preparation/Requirements
 - Python 3.11.12 (or similar)
 - 
