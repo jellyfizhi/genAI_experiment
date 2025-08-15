@@ -13,10 +13,13 @@
 - transformers==4.51.3
 ---
 ## LLM download
-```from transformers import AutoModelForCausalLM, AutoTokenizer
-model_name = "tiiuae/falcon-7b-instruct"
-save_path="/Falcon"
-def download_LLM(model_name, save_path):
+```from huggingface_hub import snapshot_download
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+save_path="/llama3"
+# add your hugging face token here in the form hf_token = "xxxxxxxxxx"
+def download_LLM(model_name, save_path, hf_token):
     """
     Downloads a LLM model from Hugging Face and saves it locally.
 
@@ -28,18 +31,18 @@ def download_LLM(model_name, save_path):
                           - 'gpt2-xl'
         save_path (str): Directory to save the model and tokenizer.
     """
-    # Load tokenizer and model from Hugging Face
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+    snapshot_path = snapshot_download(
+    repo_id=model_name,
+    token=hf_token,
+    local_dir=save_path
+    )
 
-    # Save locally
-    tokenizer.save_pretrained(save_path)
-    model.save_pretrained(save_path)
+# print(f"Private model snapshot downloaded to: {snapshot_path}")
 
     print(f"✅ LLM model ('{model_name}') downloaded and saved to '{save_path}'.")
 
 # Example usage
-download_LLM(model_name, save_path)
+#download_LLM(model_name, save_path, hf_token)
 ```
 
 ## After
