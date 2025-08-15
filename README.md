@@ -13,7 +13,34 @@
 - transformers==4.51.3
 ---
 ## LLM download
+```from transformers import AutoModelForCausalLM, AutoTokenizer
+model_name = "tiiuae/falcon-7b-instruct"
+save_path="/Falcon"
+def download_LLM(model_name, save_path):
+    """
+    Downloads a LLM model from Hugging Face and saves it locally.
 
+    Parameters:
+        model_name (str): The name of the GPT-2 model to download. Options:
+                          - 'gpt2' (small)
+                          - 'gpt2-medium'
+                          - 'gpt2-large'
+                          - 'gpt2-xl'
+        save_path (str): Directory to save the model and tokenizer.
+    """
+    # Load tokenizer and model from Hugging Face
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+
+    # Save locally
+    tokenizer.save_pretrained(save_path)
+    model.save_pretrained(save_path)
+
+    print(f"✅ LLM model ('{model_name}') downloaded and saved to '{save_path}'.")
+
+# Example usage
+download_LLM(model_name, save_path)
+```
 
 ## After
 I loaded up a new Colab page and set runtime type to T4 GPU. Then I downloaded GPT2 but the chatbot was too outdated and mostly untrained which made it difficult to work with as it kept repeating phrases in each reply until a limit was reached. Therefore, I changed to a different model; Falcon, however although more up-to-date, the file size was too big to be downloaded onto Colab and despite changing the method of download to using the hugging face snapshot download method and quantisation method, the RAM was used up nonetheless before the download could be finished. Which brings us to the llama-v3-8b model which I downloaded from hugging face using a token and this model was not too great in file size and trained well enough to sustain a proper conversation.
