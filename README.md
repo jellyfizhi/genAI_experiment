@@ -6,12 +6,13 @@ Do you also want your very own chatbot?
 - Python 3.11.12 (or similar)
 - T4 GPU (from Google Colab or any GPU RAM that is at least equivalent to 15GB)
 - Granted access to llama-3-8b model
-![Sign up or login with your account](images/grantAccess1.png)
-![Read through community license agreement and fill in details](images/grantAccess2.png)
+
 - [Access request to a model on Hugging Face](https://huggingface.co/docs/hub/en/models-gated)
 
 
 - [Adding a model to your collection](https://huggingface.co/docs/hub/en/collections)
+![Sign up or login with your account](images/grantAccess1.png)
+![Read through community license agreement and fill in details](images/grantAccess2.png)
 
 ### Personal experience - just in case:
 - torch==2.6.0 (torchvision==0.21.0+cu124)
