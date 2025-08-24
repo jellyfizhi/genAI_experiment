@@ -53,6 +53,91 @@ def download_LLM(model_name, save_path, hf_token):
 # Example usage
 #download_LLM(model_name, save_path, hf_token)
 ```
+---
+## Deploy LLM locally
+```from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+import torch
+from accelerate import load_checkpoint_and_dispatch
+
+# Clear GPU memory before loading
+def clear_gpu_memory():
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.ipc_collect()  # Collect any lingering memory fragments
+        print(f"GPU Memory Cleared. Free: {torch.cuda.memory_reserved() / 1024**3:.2f} GiB")
+# Install required libraries if not already installed:
+# pip install bitsandbytes accelerate
+
+# Load the model and tokenizer with quantization
+def load_LLM(save_path):
+    """
+    Loads the model and tokenizer from a saved local path with quantization.
+    """
+    # Clear GPU memory before loading
+    clear_gpu_memory()
+
+    # Define 4-bit quantization configuration
+    quantization_config = BitsAndBytesConfig(
+        load_in_4bit=True,  # Enable 4-bit quantization (lower than 8-bit)
+
+        bnb_4bit_quant_type="nf4",  # Use NF4 quantization (optimized for LLMs)
+        bnb_4bit_use_double_quant=True,  # Double quantization for extra savings
+        bnb_4bit_compute_dtype="float16",  # Compute in FP16
+    )
+
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(save_path)
+
+    # Load model with 8-bit quantization
+    model = AutoModelForCausalLM.from_pretrained(
+        save_path,
+        quantization_config=quantization_config,  # Pass the 8-bit quantization config
+        device_map="auto",  # Automatically split across GPU/CPU
+        low_cpu_mem_usage=True,  # Minimize CPU memory spikes
+    )
+
+    # Optional: Offload to CPU/disk if GPU memory is still insufficient
+ #   model = load_checkpoint_and_dispatch(
+ #       model,
+ #       checkpoint=save_path,
+ #       device_map="auto",
+ #       offload_folder="./offload",  # Directory for offloaded weights
+ #   )
+
+    return tokenizer, model
+
+# Function to chat with LLM
+def chat_with_LLM(save_path):
+    # Load the model and tokenizer
+    tokenizer, model = load_LLM(save_path)  # Adjust save_path as needed
+
+    print("🤖 Chatbot: Hello! Type 'exit' to end the chat.")
+
+    while True:
+        user_input = input("🧑 You: ")
+        if user_input.lower() == "exit":
+            print("🤖 Chatbot: Goodbye!")
+            break
+
+        # Tokenize input and move to GPU if available
+        input_ids = tokenizer.encode(user_input, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Generate a response
+        output = model.generate(
+            input_ids,
+            max_length=100,
+            num_return_sequences=1,
+            pad_token_id=tokenizer.eos_token_id,
+            do_sample=True,  # Optional: Adds variety to responses
+            top_k=50,        # Optional: Improves response quality
+            top_p=0.95       # Optional: Improves response quality
+        )
+
+        # Decode and print response
+        response = tokenizer.decode(output[:, input_ids.shape[-1]:][0], skip_special_tokens=True)
+        print(f"🤖 Chatbot: {response}")
+```
+
 
 ## After
 I loaded up a new Colab page and set runtime type to T4 GPU. Then I downloaded GPT2 but the chatbot was too outdated and mostly untrained which made it difficult to work with as it kept repeating phrases in each reply until a limit was reached. Therefore, I changed to a different model; Falcon, however although more up-to-date, the file size was too big to be downloaded onto Colab and despite changing the method of download to using the hugging face snapshot download method and quantisation method, the RAM was used up nonetheless before the download could be finished. Which brings us to the llama-v3-8b model which I downloaded from hugging face using a token and this model was not too great in file size and trained well enough to sustain a proper conversation.
