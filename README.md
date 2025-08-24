@@ -33,11 +33,11 @@ def download_LLM(model_name, save_path, hf_token):
     Downloads a LLM model from Hugging Face and saves it locally.
 
     Parameters:
-        model_name (str): The name of the GPT-2 model to download. Options:
-                          - 'gpt2' (small)
-                          - 'gpt2-medium'
-                          - 'gpt2-large'
-                          - 'gpt2-xl'
+        model_name (str): The name of the llama-3-8b model to download. Options:
+                          - 'llama3' (small)
+                          - 'llama3-medium'
+                          - 'llama3-large'
+                          - 'llama3-xl'
         save_path (str): Directory to save the model and tokenizer.
     """
     snapshot_path = snapshot_download(
@@ -88,10 +88,10 @@ def load_LLM(save_path):
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(save_path)
 
-    # Load model with 8-bit quantization
+    # Load model with 4-bit quantization
     model = AutoModelForCausalLM.from_pretrained(
         save_path,
-        quantization_config=quantization_config,  # Pass the 8-bit quantization config
+        quantization_config=quantization_config,  # Pass the 4-bit quantization config
         device_map="auto",  # Automatically split across GPU/CPU
         low_cpu_mem_usage=True,  # Minimize CPU memory spikes
     )
@@ -137,11 +137,19 @@ def chat_with_LLM(save_path):
         response = tokenizer.decode(output[:, input_ids.shape[-1]:][0], skip_special_tokens=True)
         print(f"🤖 Chatbot: {response}")
 ```
+So the first problem I encountered with deploying the LLM was that the model was using up too much RAM and the code was quickly using up all the system RAM and GPU RAM which meant that I was unable to progress and actually run the chatbot. Now this was a problem because I couldn't just simply upgrade to more RAM and upgrading to more RAM also meant that the general public could not follow along and run this code either, so I had to think of a solution. This is where the quantization came into play as quantization reduces the computational and memory costs of running the program by representing the weights and activations with low-precision data types like 4-bit integer instead of the usual 32-bit floating point which together paired with clearing GPU RAM before loading allowed me to successfully run the program and deploy the LLM locally.
+---
+## Running the chatbot
+```# Run the chatbot
+model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+save_path="/llama3"
+chat_with_LLM(save_path)
+```
 
-
-## After
+## The whole story
 I loaded up a new Colab page and set runtime type to T4 GPU. Then I downloaded GPT2 but the chatbot was too outdated and mostly untrained which made it difficult to work with as it kept repeating phrases in each reply until a limit was reached. Therefore, I changed to a different model; Falcon, however although more up-to-date, the file size was too big to be downloaded onto Colab and despite changing the method of download to using the hugging face snapshot download method and quantisation method, the RAM was used up nonetheless before the download could be finished. Which brings us to the llama-v3-8b model which I downloaded from hugging face using a token and this model was not too great in file size and trained well enough to sustain a proper conversation.
 
+## Future plans
 
 ## Notes to write up
 falcon - too large, failed to download into colab (used up RAM) - used hugging face snapshot download method and quantisation method to load? (or was this for llama 3 8b?)
